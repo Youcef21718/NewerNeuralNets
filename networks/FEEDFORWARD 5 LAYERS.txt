@@ -1,0 +1,221 @@
+import numpy as np
+
+def sig(m):
+    return (np.exp(m))/(1+np.exp(m))
+
+def dsig(m):
+    return sig(m)*(1-sig(m))
+
+def grad(m,epsilon):
+    dm = np.zeros((m.shape[0],m.shape[1]))
+    for i in range(m.shape[0]):
+        for j in range (m.shape[1]):
+            m[i][j] += epsilon
+            cost1 = NN(W12, W13, W14, W15, W23, W24, W25, W34, W35, W45, B12, B13, B14, B15, B23, B24, B25, B34, B35, B45, sL1, Y, False)
+            m[i][j] -= epsilon
+
+            m[i][j] -= epsilon
+            cost2 = NN(W12, W13, W14, W15, W23, W24, W25, W34, W35, W45, B12, B13, B14, B15, B23, B24, B25, B34, B35, B45, sL1, Y, False)
+            m[i][j] += epsilon
+
+            dm[i][j] = (cost1 - cost2)/(2*epsilon)
+    print(dm)
+
+W12 = np.random.rand(3,4)
+W13 = np.random.rand(3,5)
+W14 = np.random.rand(3,6)
+W15 = np.random.rand(3,7)
+
+W23 = np.random.rand(4,5)
+W24 = np.random.rand(4,6)
+W25 = np.random.rand(4,7)
+
+W34 = np.random.rand(5,6)
+W35 = np.random.rand(5,7)
+
+W45 = np.random.rand(6,7)
+
+
+B12 = np.random.rand(2,4)
+B13 = np.random.rand(2,5)
+B14 = np.random.rand(2,6)
+B15 = np.random.rand(2,7)
+
+B23 = np.random.rand(2,5)
+B24 = np.random.rand(2,6)
+B25 = np.random.rand(2,7)
+
+B34 = np.random.rand(2,6)
+B35 = np.random.rand(2,7)
+
+B45 = np.random.rand(2,7)
+
+#input
+sL1 = np.random.rand(2,3)
+
+#label
+Y = np.random.rand(2,7)
+
+def NN(W12, W13, W14, W15, W23, W24, W25, W34, W35, W45, B12, B13, B14, B15, B23, B24, B25, B34, B35, B45, sL1, Y, show):
+
+    L2 = sL1.dot(W12)+B12
+    sL2 = sig(L2)
+
+    L3 = sL2.dot(W23)+B23 + sL1.dot(W13)+B13
+    sL3 = sig(L3)
+
+    L4 = sL3.dot(W34)+B34 + sL2.dot(W24)+B24 + sL1.dot(W14)+B14
+    sL4 = sig(L4)
+
+    L5 = sL4.dot(W45)+B45 + sL3.dot(W35)+B35 + sL2.dot(W25)+B25 + sL1.dot(W15)+B15
+    sL5 = sig(L5)
+
+    cost = np.sum(0.5*(sL5-Y)*(sL5-Y))
+
+    if(show):
+
+        dB15 = (sL5-Y)*dsig(L5)
+        dB25 = (sL5-Y)*dsig(L5)
+        dB35 = (sL5-Y)*dsig(L5)
+        dB45 = (sL5-Y)*dsig(L5)
+        #dL5 = (sL5-Y)*dsig(L5)
+
+        dB14 = dB45.dot(W45.T)*dsig(L4)
+        dB24 = dB45.dot(W45.T)*dsig(L4)
+        dB34 = dB45.dot(W45.T)*dsig(L4)
+        #dL4 = dL5.dot(W45.T)*dsig(L4)
+
+        dB13 = (dB34.dot(W34.T) + dB45.dot(W35.T))*dsig(L3)
+        dB23 = (dB34.dot(W34.T) + dB45.dot(W35.T))*dsig(L3)
+        #dL3 = (dL4.dot(W34.T) + dL5.dot(W35.T))*dsig(L3)
+
+        dB12 = (dB23.dot(W23.T) + dB34.dot(W24.T) + dB45.dot(W25.T))*dsig(L2)
+        #dL2 = (dL3.dot(W23.T) + dL4.dot(W24.T) + dL5.dot(W25.T))*dsig(L2)
+
+        dW15 = (sL1.T).dot(dB15)
+        dW25 = (sL2.T).dot(dB25)
+        dW35 = (sL3.T).dot(dB35)
+        dW45 = (sL4.T).dot(dB45)
+
+        dW14 = (sL1.T).dot(dB14)
+        dW24 = (sL2.T).dot(dB24)
+        dW34 = (sL3.T).dot(dB34)
+
+        dW13 = (sL1.T).dot(dB13)
+        dW23 = (sL2.T).dot(dB23)
+
+        dW12 = (sL1.T).dot(dB12)
+
+
+        print(dB15)
+        print()
+        print(dB25)
+        print()
+        print(dB35)
+        print()
+        print(dB45)
+        print()
+
+        print(dB14)
+        print()
+        print(dB24)
+        print()
+        print(dB34)
+        print()
+
+        print(dB13)
+        print()
+        print(dB23)
+        print()
+
+        print(dB12)
+        print()
+
+
+        print(dW15)
+        print()
+        print(dW25)
+        print()
+        print(dW35)
+        print()
+        print(dW45)
+        print()
+
+        print(dW14)
+        print()
+        print(dW24)
+        print()
+        print(dW34)
+        print()
+
+        print(dW13)
+        print()
+        print(dW23)
+        print()
+
+        print(dW12)
+        print()
+
+    return cost
+
+eps = 0.00001
+cost = NN(W12, W13, W14, W15, W23, W24, W25, W34, W35, W45, B12, B13, B14, B15, B23, B24, B25, B34, B35, B45, sL1, Y, True)
+
+
+grad(B15,eps)
+print()
+grad(B25,eps)
+print()
+grad(B35,eps)
+print()
+grad(B45,eps)
+print()
+
+grad(B14,eps)
+print()
+grad(B24,eps)
+print()
+grad(B34,eps)
+print()
+
+grad(B13,eps)
+print()
+grad(B23,eps)
+print()
+
+grad(B12,eps)
+print()
+
+
+grad(W15,eps)
+print()
+grad(W25,eps)
+print()
+grad(W35,eps)
+print()
+grad(W45,eps)
+print()
+
+grad(W14,eps)
+print()
+grad(W24,eps)
+print()
+grad(W34,eps)
+print()
+
+grad(W13,eps)
+print()
+grad(W23,eps)
+print()
+
+grad(W12,eps)
+print()
+
+
+
+
+
+
+
+
+

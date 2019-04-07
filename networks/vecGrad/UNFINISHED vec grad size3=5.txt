@@ -1,0 +1,166 @@
+import numpy as np
+
+def sig(m):
+    return (np.exp(m))/(1+np.exp(m))
+
+def dsig(m):
+    return sig(m)*(1-sig(m))
+
+def grad(m,epsilon):
+    dm = np.zeros((m.shape[0],m.shape[1]))
+    for i in range(m.shape[0]):
+        for j in range (m.shape[1]):
+            m[i][j] += epsilon
+            cost1 = NN(W12, W23, B12, B23, sL1, False)
+            m[i][j] -= epsilon
+
+            m[i][j] -= epsilon
+            cost2 = NN(W12, W23, B12, B23, sL1, False)
+            m[i][j] += epsilon
+
+            dm[i][j] = (cost1 - cost2)/(2*epsilon)
+    print(dm)
+
+def grad2(y,x,epsilon):
+    dydx = np.zeros((x.shape[0],x.shape[1],y.shape[0],y.shape[1]))
+    for ix in range(x.shape[0]):
+        for jx in range(x.shape[1]):           
+            x[ix][jx] += epsilon
+            cost1 = NN2(W12, W23, B12, B23, sL1, False)
+            x[ix][jx] -= epsilon
+
+            x[ix][jx] -= epsilon
+            cost2 = NN2(W12, W23, B12, B23, sL1, False)
+            x[ix][jx] += epsilon
+
+            dydx[ix][jx] = (cost1 - cost2)/(2*epsilon)
+    return dydx
+
+def NN(W12, W23, B12, B23, sL1, show):
+
+    L2 = sL1.dot(W12)+B12
+    sL2 = sig(L2)
+
+    L3 = sL2.dot(W23)+B23
+    sL3 = sig(L3)
+
+    cost = np.sum(sL3)
+
+    if(show):
+
+        dB23 = dsig(L3)
+        dB12 = dB23.dot(W23.T)*dsig(L2)
+
+        dW23 = (sL2.T).dot(dB23)
+        dW12 = (sL1.T).dot(dB12)
+
+        print(dB23)
+        print()
+        print(dB12)
+        print()
+
+        print(dW23)
+        print()
+        print(dW12)
+        print()
+
+    return cost
+
+def NN2(W12, W23, B12, B23, sL1, show):
+
+    L2 = sL1.dot(W12)+B12
+    sL2 = sig(L2)
+
+    L3 = sL2.dot(W23)+B23
+    sL3 = sig(L3)
+
+    if(show):
+
+        dB23 = dsig(L3)
+        dB12 = dB23.dot(W23.T)*dsig(L2)
+
+        dW23 = (sL2.T).dot(dB23)
+        dW12 = (sL1.T).dot(dB12)
+
+        print(dB23)
+        print()
+        print(dB12)
+        print()
+
+        print(dW23)
+        print()
+        print(dW12)
+        print()
+
+    return sL3
+
+batch = 2
+size1 = 3
+size2 = 4
+size3 = 5
+
+# weights
+W12 = np.random.rand(size1,size2)
+W23 = np.random.rand(size2,size3)
+
+# inputs
+sL1 = np.random.rand(batch,size1)
+
+# biases
+B12 = np.random.rand(batch,size2)
+B23 = np.random.rand(batch,size3)
+
+# NN
+L2 = sL1.dot(W12)+B12
+sL2 = sig(L2)
+
+L3 = sL2.dot(W23)+B23
+sL3 = sig(L3)
+
+def mul(x,y):
+    mul = np.zeros((x.shape[1],y.shape[1],x.shape[0]))
+    for i in range(x.shape[1]):
+        for j in range(y.shape[1]):
+            for k in range(x.shape[0]):
+                mul[i][j][k] = x[k][i]*y[k][j]
+    return mul
+
+def prod(x,y):
+    prod = np.zeros((x.shape[1],y.shape[2],x.shape[0],y.shape[0]))
+    for i in range(x.shape[1]):
+        for j in range(y.shape[2]):
+            for k in range(x.shape[0]):
+                for l in range(y.shape[0]):
+                    prod[i][j][k][l] = x[k][i]*y[l][k][j]
+    return prod
+    
+
+grad2(sL3,W23,0.00001)
+grad2(sL3,W12,0.00001)
+grad2(sL3,B23,0.00001)
+grad2(sL3,B12,0.00001)
+
+np.sum(grad2(sL3,W23,0.0001),axis=(2,3))
+np.sum(grad2(sL3,W12,0.0001),axis=(2,3))
+np.sum(grad2(sL3,B23,0.0001),axis=(2,3))
+np.sum(grad2(sL3,B12,0.0001),axis=(2,3))
+
+dB23 = dsig(L3)
+#db12 = dB23.dot(W23.T)*dsig(L2) equivalent to sum
+dB12 = mul(dB23.T,W23.T).transpose((2,0,1))*dsig(L2)
+dW23 = mul(sL2,dB23)
+dW12 = prod(sL1,dB12)
+
+cost = NN(W12, W23, B12, B23, sL1, True)
+
+eps = 0.00001
+
+grad(B23,eps)
+print()
+grad(B12,eps)
+print()
+
+grad(W23,eps)
+print()
+grad(W12,eps)
+print()

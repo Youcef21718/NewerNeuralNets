@@ -1,0 +1,150 @@
+import numpy as np
+
+def sig(m):
+    return (np.exp(m))/(1+np.exp(m))
+
+def dsig(m):
+    return sig(m)*(1-sig(m))
+
+def grad(m,epsilon):
+    dm = np.zeros((m.shape[0],m.shape[1]))
+    for i in range(m.shape[0]):
+        for j in range (m.shape[1]):
+            m[i][j] += epsilon
+            cost1 = NN(W12, W23, W34, B12, B23, B34, sL1, Y, False)
+            m[i][j] -= epsilon
+
+            m[i][j] -= epsilon
+            cost2 = NN(W12, W23, W34, B12, B23, B34, sL1, Y, False)
+            m[i][j] += epsilon
+
+            dm[i][j] = (cost1 - cost2)/(2*epsilon)
+    print(dm)
+
+W12 = np.random.rand(3,4)
+W23 = np.random.rand(4,5)
+W34 = np.random.rand(5,6)
+
+W13 = np.random.rand(3,5)
+W14 = np.random.rand(3,6)
+W24 = np.random.rand(4,6)
+
+B12 = np.random.rand(2,4)
+B23 = np.random.rand(2,5)
+B34 = np.random.rand(2,6)
+
+B13 = np.random.rand(2,5)
+B14 = np.random.rand(2,6)
+B24 = np.random.rand(2,6)
+
+#input
+sL1 = np.random.rand(2,3)
+
+#label
+Y = np.random.rand(2,6)
+
+def NN(W12, W23, W34, B12, B23, B34, sL1, Y, show):
+
+    L2 = sL1.dot(W12)+B12
+    sL2 = sig(L2)
+
+    L3 = sL2.dot(W23)+B23 + sL1.dot(W13)+B13
+    sL3 = sig(L3)
+
+    L4 = sL3.dot(W34)+B34 + sL2.dot(W24)+B24 + sL1.dot(W14)+B14
+    sL4 = sig(L4)
+
+    cost = np.sum(0.5*(sL4-Y)*(sL4-Y))
+
+    if(show):
+
+        dB34 = (sL4-Y)*dsig(L4)
+        dB23 = dB34.dot(W34.T)*dsig(L3)
+        dB12 = (dB23.dot(W23.T) + dB34.dot(W24.T))*dsig(L2)
+
+        dB24 = (sL4-Y)*dsig(L4)
+        dB14 = (sL4-Y)*dsig(L4)
+        dB13 = dB34.dot(W34.T)*dsig(L3)
+
+        dW34 = (sL3.T).dot(dB34)
+        dW23 = (sL2.T).dot(dB23)
+        dW12 = (sL1.T).dot(dB12)
+
+        dW24 = (sL2.T).dot(dB24)
+        dW14 = (sL1.T).dot(dB14)
+        dW13 = (sL1.T).dot(dB13)
+
+        #print(dB34)
+        #print()
+        #print(dB23)
+        #print()
+        #print(dB12)
+        #print()
+
+        #print(dB24)
+        #print()
+        #print(dB14)
+        #print()
+        #print(dB13)
+        #print()
+
+        #print(dW34)
+        #print()
+        #print(dW23)
+        #print()
+        #print(dW12)
+        #print()
+
+        #print(dW24)
+        #print()
+        #print(dW14)
+        #print()
+        #print(dW13)
+        #print()
+
+    return cost
+
+eps = 0.00001
+cost = NN(W12, W23, W34, B12, B23, B34, sL1, Y, True)
+
+grad(B34,eps)
+print()
+grad(B23,eps)
+print()
+grad(B12,eps)
+print()
+
+grad(B24,eps)
+print()
+grad(B14,eps)
+print()
+grad(B13,eps)
+print()
+
+grad(W34,eps)
+print()
+grad(W23,eps)
+print()
+grad(W12,eps)
+print()
+
+grad(W24,eps)
+print()
+grad(W14,eps)
+print()
+grad(W13,eps)
+print()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
